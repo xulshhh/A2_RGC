@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Puente — Modelo de Negocio Inclusivo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#1D2A44;
+    --navy-2:#293A5C;
+    --marigold:#E0932C;
+    --teal:#3E6E68;
+    --paper:#F8F6F2;
+    --ink:#1A1A1A;
+    --ink-soft:#4A4A4A;
+    --line:#D9D4C9;
+    box-sizing:border-box;
+    padding-top:env(safe-area-inset-top,0px);
+    padding-bottom:env(safe-area-inset-bottom,0px);
+  }
+  html{scroll-padding-top:76px;}
+  *,*::before,*::after{box-sizing:inherit}
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --paper:#15181D; --ink:#EDEAE3; --ink-soft:#B9B5AC; --line:#33373F; --navy:#0F1626; --navy-2:#1A2438;
+    }
+  }
+  :root[data-theme="dark"]{
+    --paper:#15181D; --ink:#EDEAE3; --ink-soft:#B9B5AC; --line:#33373F; --navy:#0F1626; --navy-2:#1A2438;
+  }
+  @media (prefers-reduced-motion: reduce){
+    *{animation-duration:.001ms!important; transition-duration:.001ms!important;}
+  }
+  body{
+    margin:0; background:var(--paper); color:var(--ink);
+    font-family:"Work Sans",Arial,sans-serif; line-height:1.6;
+  }
+  h1,h2,h3{font-family:"Fraunces",Georgia,serif; font-weight:600; line-height:1.15; margin:0 0 .5em;}
+  p{margin:0 0 1em; max-width:62ch; color:var(--ink-soft);}
+  a{color:inherit}
+  img,svg{max-width:100%}
+
+  .skip-link{
+    position:absolute; left:1rem; top:-3rem; background:var(--marigold); color:var(--navy);
+    padding:.6rem 1rem; border-radius:4px; font-weight:600; text-decoration:none; z-index:100;
+    transition:top .15s ease;
+  }
+  .skip-link:focus{top:calc(1rem + env(safe-area-inset-top,0px));}
+
+  :focus-visible{outline:3px solid var(--marigold); outline-offset:2px;}
+
+  header.site{
+    position:sticky; top:0; z-index:10; background:var(--navy); color:#fff;
+    padding:1rem 1.5rem; padding-top:calc(1rem + env(safe-area-inset-top,0px));
+    display:flex; align-items:center; justify-content:space-between; gap:1rem; flex-wrap:wrap;
+    border-bottom:1px solid rgba(255,255,255,.12);
+  }
+  .brand{display:flex; align-items:center; gap:.6rem; font-family:"Fraunces",serif; font-weight:600; font-size:1.15rem;}
+  .brand svg{width:28px; height:28px; flex-shrink:0;}
+  nav.primary ul{list-style:none; display:flex; gap:1.4rem; margin:0; padding:0; flex-wrap:wrap;}
+  nav.primary a{text-decoration:none; font-size:.95rem; color:#EFE9DD; border-bottom:2px solid transparent; padding-bottom:2px;}
+  nav.primary a:hover, nav.primary a:focus-visible{border-color:var(--marigold);}
+
+  .hero{
+    position:relative; overflow:hidden; background:var(--navy); color:#fff;
+    padding:4.5rem 1.5rem 5rem;
+  }
+  .hero-inner{max-width:920px; margin:0 auto; position:relative; z-index:2;}
+  .eyebrow{color:var(--marigold); font-weight:600; letter-spacing:.02em; margin-bottom:.8rem; font-size:.95rem;}
+  .hero h1{font-size:clamp(2.1rem,5vw,3.2rem); color:#fff; max-width:14ch;}
+  .hero p.lead{color:#D9DCE6; font-size:1.15rem; max-width:52ch;}
+  .hero-cta{display:flex; gap:1rem; flex-wrap:wrap; margin-top:1.5rem;}
+  .btn{
+    display:inline-block; padding:.85rem 1.5rem; border-radius:3px; font-weight:600;
+    text-decoration:none; font-size:.98rem; border:1.5px solid transparent;
+  }
+  .btn.primary{background:var(--marigold); color:var(--navy);}
+  .btn.primary:hover, .btn.primary:focus-visible{background:#c67f22;}
+  .btn.ghost{border-color:rgba(255,255,255,.5); color:#fff;}
+  .btn.ghost:hover, .btn.ghost:focus-visible{border-color:#fff; background:rgba(255,255,255,.08);}
+
+  .arch-wrap{position:absolute; right:-4%; bottom:-6rem; width:340px; opacity:.9;}
+
+  main section{padding:4rem 1.5rem; border-bottom:1px solid var(--line);}
+  .wrap{max-width:920px; margin:0 auto;}
+  section:last-of-type{border-bottom:none;}
+
+  .kicker{display:flex; align-items:baseline; gap:.7rem; margin-bottom:1.2rem;}
+  .kicker .num{font-family:"Fraunces",serif; font-weight:600; color:var(--marigold); font-size:1.1rem;}
+
+  .grid-2{display:grid; grid-template-columns:1.1fr .9fr; gap:2.5rem; align-items:start;}
+  @media (max-width:720px){.grid-2{grid-template-columns:1fr;}}
+
+  ul.services{list-style:none; margin:0; padding:0; display:grid; gap:1rem;}
+  ul.services li{
+    display:flex; gap:.9rem; align-items:flex-start; padding:1rem 1.1rem;
+    background:var(--navy-2); border-left:4px solid var(--marigold); border-radius:2px;
+  }
+  ul.services li svg{flex-shrink:0; width:22px; height:22px; margin-top:.15rem;}
+  ul.services li{color:#EDEAE3;}
+  ul.services li strong{display:block; color:#fff; font-family:"Fraunces",serif; font-weight:600;}
+  ul.services li span{color:#C8CCDA; font-size:.95rem;}
+
+  .stat-row{display:flex; gap:2.2rem; flex-wrap:wrap; margin-top:1.5rem;}
+  .stat{font-family:"Fraunces",serif; font-weight:600; font-size:2rem; color:var(--teal);}
+  .stat span{display:block; font-family:"Work Sans",sans-serif; font-weight:500; font-size:.85rem; color:var(--ink-soft); margin-top:.2rem;}
+
+  .path-list{list-style:none; margin:0; padding:0; counter-reset:step;}
+  .path-list li{counter-increment:step; position:relative; padding:0 0 1.6rem 2.6rem; border-left:2px solid var(--line); margin-left:.6rem;}
+  .path-list li:last-child{border-left-color:transparent; padding-bottom:0;}
+  .path-list li::before{
+    content:counter(step); position:absolute; left:-.85rem; top:0; width:1.7rem; height:1.7rem;
+    background:var(--marigold); color:var(--navy); border-radius:50%; display:flex; align-items:center; justify-content:center;
+    font-weight:600; font-size:.85rem; font-family:"Fraunces",serif;
+  }
+  .path-list h3{font-size:1.05rem; margin-bottom:.25rem;}
+
+  .income-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:1.2rem;}
+  @media (max-width:720px){.income-grid{grid-template-columns:1fr;}}
+  .income-card{padding:1.4rem; border:1px solid var(--line); border-radius:3px;}
+  .income-card h3{font-size:1.05rem; margin-bottom:.4rem;}
+  .income-card p{font-size:.92rem; margin-bottom:0;}
+
+  form.contact{display:grid; gap:1rem; max-width:480px; margin-top:1rem;}
+  form.contact label{font-weight:600; font-size:.92rem; display:block; margin-bottom:.35rem;}
+  form.contact input, form.contact select, form.contact textarea{
+    width:100%; padding:.7rem .8rem; border:1.5px solid var(--line); border-radius:3px;
+    font-family:inherit; font-size:1rem; background:var(--paper); color:var(--ink);
+  }
+  form.contact textarea{min-height:100px; resize:vertical;}
+  .hint{font-size:.85rem; color:var(--ink-soft); margin-top:.2rem;}
+
+  footer.site{background:var(--navy); color:#C8CCDA; padding:2.5rem 1.5rem; padding-bottom:calc(2.5rem + env(safe-area-inset-bottom,0px));}
+  footer.site .wrap{display:flex; justify-content:space-between; gap:1.5rem; flex-wrap:wrap; align-items:center;}
+  footer.site a{color:#fff; text-decoration:underline;}
+  .visually-hidden{position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap;}
+</style>
+</head>
+<body>
+
+<a href="#contenido" class="skip-link">Saltar al contenido principal</a>
+
+<header class="site">
+  <div class="brand">
+    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3 20c3-6 7-9 9-9s6 3 9 9" fill="none" stroke="#E0932C" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="7" r="3" fill="#E0932C"/></svg>
+    <span>Puente</span>
+  </div>
+  <nav class="primary" aria-label="Navegación principal">
+    <ul>
+      <li><a href="#modelo">El modelo</a></li>
+      <li><a href="#servicios">Servicios</a></li>
+      <li><a href="#comunidad">A quién servimos</a></li>
+      <li><a href="#participar">Cómo participar</a></li>
+      <li><a href="#sostenibilidad">Sostenibilidad</a></li>
+      <li><a href="#contacto">Contacto</a></li>
+    </ul>
+  </nav>
+</header>
+
+<main id="contenido">
+
+  <section class="hero" aria-labelledby="hero-title">
+    <div class="hero-inner">
+      <p class="eyebrow">Modelo de negocio inclusivo</p>
+      <h1 id="hero-title">Un espacio seguro para construir un futuro distinto</h1>
+      <p class="lead">Puente ofrece a niñas, niños y jóvenes en situación de calle o en comunidades de alto riesgo un lugar protegido, capacitación certificada y acompañamiento psicológico, para abrir camino hacia una vida con más oportunidades.</p>
+      <div class="hero-cta">
+        <a class="btn primary" href="#participar">Cómo participar</a>
+        <a class="btn ghost" href="#modelo">Conocer el modelo</a>
+      </div>
+    </div>
+    <svg class="arch-wrap" viewBox="0 0 200 220" aria-hidden="true" focusable="false">
+      <path d="M20 220 V110 A80 80 0 0 1 180 110 V220" fill="none" stroke="#E0932C" stroke-width="10" stroke-linecap="round" opacity="0.9"/>
+      <circle cx="100" cy="70" r="10" fill="#3E6E68"/>
+      <circle cx="70" cy="150" r="7" fill="#EFE9DD" opacity=".7"/>
+      <circle cx="130" cy="150" r="7" fill="#EFE9DD" opacity=".7"/>
+    </svg>
+  </section>
+
+  <section id="modelo" aria-labelledby="modelo-title">
+    <div class="wrap grid-2">
+      <div>
+        <div class="kicker"><span class="num">01</span><h2 id="modelo-title" style="margin:0;">Promesa de valor</h2></div>
+        <p>Formar personas de bien y generar un ambiente sano para que niños y jóvenes crezcan de manera saludable, aprendan nuevas habilidades y tengan mejores oportunidades reales.</p>
+        <p>Trabajando junto con comunidades, asociaciones y gobierno, buscamos que este compromiso se traduzca en una disminución de la criminalidad y en más empleo para quienes hoy no tienen acceso a él.</p>
+      </div>
+      <div class="stat-row" role="list" aria-label="Impacto esperado">
+        <div class="stat" role="listitem">↓<span>Tasa de criminalidad</span></div>
+        <div class="stat" role="listitem">+<span>Empleos comunitarios</span></div>
+        <div class="stat" role="listitem">＋<span>Diplomas y certificados</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="servicios" aria-labelledby="servicios-title">
+    <div class="wrap">
+      <div class="kicker"><span class="num">02</span><h2 id="servicios-title" style="margin:0;">Qué ofrecemos</h2></div>
+      <p>Un mismo espacio reúne alimentación, formación y salud mental, para que cada persona pueda quedarse el tiempo que necesite para reencaminar su vida.</p>
+      <ul class="services">
+        <li>
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 10h16M6 10v9a1 1 0 001 1h10a1 1 0 001-1v-9M9 10V6a3 3 0 016 0v4" fill="none" stroke="#E0932C" stroke-width="1.8"/></svg>
+          <span><strong>Comedor comunitario</strong><span>Alimentación diaria para personas en situación de calle.</span></span>
+        </li>
+        <li>
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3 8l9-4 9 4-9 4-9-4zm4 2v5c0 1.5 2.5 3 5 3s5-1.5 5-3v-5" fill="none" stroke="#E0932C" stroke-width="1.8"/></svg>
+          <span><strong>Diplomados y certificados</strong><span>Clases orientadas a habilidades con salida laboral.</span></span>
+        </li>
+        <li>
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="8" r="3.2" fill="none" stroke="#E0932C" stroke-width="1.8"/><path d="M5 20c1-4 4-6 7-6s6 2 7 6" fill="none" stroke="#E0932C" stroke-width="1.8"/></svg>
+          <span><strong>Formación de facilitadores</strong><span>Preparamos maestros y supervisores de actividades.</span></span>
+        </li>
+        <li>
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 21s-7-4.35-9.3-8.6C1 8.7 3 5 7 5c2 0 3.5 1.2 5 3 1.5-1.8 3-3 5-3 4 0 6 3.7 4.3 7.4C19 16.65 12 21 12 21z" fill="none" stroke="#E0932C" stroke-width="1.8"/></svg>
+          <span><strong>Apoyo psicológico</strong><span>Acompañamiento para cuidar la salud mental de cada persona.</span></span>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <section id="comunidad" aria-labelledby="comunidad-title">
+    <div class="wrap grid-2">
+      <div>
+        <div class="kicker"><span class="num">03</span><h2 id="comunidad-title" style="margin:0;">A quién servimos</h2></div>
+        <p>Niñas, niños, jóvenes y adultos jóvenes que viven en situación de calle o en comunidades con alta tasa de criminalidad, para quienes un espacio físico no basta: necesitan herramientas concretas para salir de esa situación.</p>
+        <p>Por eso el modelo combina diplomas, certificados, actividades y, cuando es posible, empleo dentro de la misma organización.</p>
+      </div>
+      <img src="" alt="" role="presentation" style="display:none;">
+      <div style="background:var(--navy-2); border-radius:3px; padding:1.4rem; color:#EFE9DD;">
+        <h3 style="color:#fff; font-size:1rem;">Página de inicio — vista previa</h3>
+        <p style="color:#C8CCDA; font-size:.9rem; margin-bottom:0;">La imagen de esta homepage muestra el arco luminoso como punto de partida: desde aquí cualquier visitante llega en un clic a el modelo, los servicios, cómo participar y el contacto, usando la navegación superior y el mismo orden en todo momento.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="participar" aria-labelledby="participar-title">
+    <div class="wrap">
+      <div class="kicker"><span class="num">04</span><h2 id="participar-title" style="margin:0;">Cómo participar</h2></div>
+      <ol class="path-list">
+        <li><h3>Revisa las vacantes</h3><p>Publicamos oportunidades de trabajo remuneradas y voluntariado.</p></li>
+        <li><h3>Escríbenos o búscanos en comunidad</h3><p>Atendemos también por búsqueda remota y en eventos en centros comunitarios.</p></li>
+        <li><h3>Súmate a una actividad</h3><p>Diplomados, talleres y acompañamiento abiertos todo el año.</p></li>
+      </ol>
+    </div>
+  </section>
+
+  <section id="sostenibilidad" aria-labelledby="sost-title">
+    <div class="wrap">
+      <div class="kicker"><span class="num">05</span><h2 id="sost-title" style="margin:0;">Cómo se sostiene el proyecto</h2></div>
+      <div class="income-grid">
+        <div class="income-card"><h3>Donaciones</h3><p>De personas y organizaciones aliadas con la misión.</p></div>
+        <div class="income-card"><h3>Apoyo gubernamental</h3><p>Convenios con programas públicos de atención a juventudes.</p></div>
+        <div class="income-card"><h3>Venta de productos y servicios</h3><p>Elaborados por empleados y personas egresadas de los diplomados.</p></div>
+      </div>
+      <p style="margin-top:1.4rem;">La primera sede se ubica en una zona de alto riesgo y funciona como campo de pruebas. Si el modelo da resultado, se replicará gradualmente en más comunidades de la República Mexicana.</p>
+    </div>
+  </section>
+
+  <section id="contacto" aria-labelledby="contacto-title">
+    <div class="wrap">
+      <div class="kicker"><span class="num">06</span><h2 id="contacto-title" style="margin:0;">Contáctanos</h2></div>
+      <p>¿Quieres donar, ser voluntario o inscribirte a un diplomado? Escríbenos.</p>
+      <form class="contact" aria-label="Formulario de contacto">
+        <div>
+          <label for="nombre">Nombre completo</label>
+          <input id="nombre" name="nombre" type="text" autocomplete="name" required>
+        </div>
+        <div>
+          <label for="correo">Correo electrónico</label>
+          <input id="correo" name="correo" type="email" autocomplete="email" required aria-describedby="correo-hint">
+          <p class="hint" id="correo-hint">Te responderemos en un máximo de 3 días hábiles.</p>
+        </div>
+        <div>
+          <label for="motivo">Motivo de contacto</label>
+          <select id="motivo" name="motivo">
+            <option>Quiero donar</option>
+            <option>Quiero ser voluntario</option>
+            <option>Quiero inscribirme a un diplomado</option>
+            <option>Otro</option>
+          </select>
+        </div>
+        <div>
+          <label for="mensaje">Mensaje</label>
+          <textarea id="mensaje" name="mensaje"></textarea>
+        </div>
+        <button class="btn primary" type="submit" style="justify-self:start;">Enviar mensaje</button>
+      </form>
+    </div>
+  </section>
+
+</main>
+
+<footer class="site">
+  <div class="wrap">
+    <p style="margin:0; max-width:none; color:#C8CCDA;">Puente — Modelo de Negocio Inclusivo. Maqueta con fines académicos.</p>
+    <p style="margin:0;"><a href="#contenido">Volver arriba</a></p>
+  </div>
+</footer>
+
+</body>
+</html>
